@@ -21,8 +21,15 @@ pool.connect((err, client, release) => {
 });
 
 app.get('/users', async (req, res) => {
+  const { username } = req.query;
   try {
-    const { rows } = await pool.query('SELECT * FROM users');
+    let query = 'SELECT * FROM users';
+    let params = [];
+    if (username) {
+      query += ' WHERE username = $1';
+      params = [username];
+    }
+    const { rows } = await pool.query(query, params);
     res.json(rows);
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -59,10 +66,10 @@ app.get('/workout', async (req, res) => {
 app.post('/users', async (req, res) => {
   try {
     console.log('Received user data:', req.body);
-    const { username, password } = req.body;
+    const { username, password, email } = req.body;
     const result = await pool.query(
-      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
-      [username, password]
+      'INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *',
+      [username, password, email]
     );
     console.log('User added:', result.rows[0]);
     res.json(result.rows[0]);
