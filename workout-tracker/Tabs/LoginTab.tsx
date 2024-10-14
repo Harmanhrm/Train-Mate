@@ -1,9 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { View, Text, Alert, TextInput, Button, StyleSheet } from "react-native";
-import { config } from 'dotenv';
-config();
-const ip = process.env.SERVER_IP;
+import { SERVER_IP} from '@env';
+
 const LoginTab = () => {
     const [newUser, setNewUser] = useState({
         username: '',
@@ -12,8 +11,8 @@ const LoginTab = () => {
     
     const handleAddUser = async () => {
         try {
-            console.log('sending post request', newUser);
-          const response = await axios.post(`http://${ip}:3000/users`, {
+            console.log('sending post request' + SERVER_IP, newUser);
+          const response = await axios.post(`http://${SERVER_IP}:3000/users`, {
             username: newUser.username,
             password: newUser.password
           });
@@ -40,5 +39,26 @@ const LoginTab = () => {
     </View>
   );
 };
-
+const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      padding: 16,
+      backgroundColor: '#f5f5f5',
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      marginBottom: 24,
+      textAlign: 'center',
+    },
+    input: {
+      height: 40,
+      borderColor: 'gray',
+      borderWidth: 1,
+      marginBottom: 12,
+      paddingHorizontal: 8,
+      backgroundColor: 'white',
+    },
+  });
 export default LoginTab;
