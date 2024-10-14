@@ -10,7 +10,7 @@ const App = () => {
     <NavigationContainer>
       <Tab.Navigator>
         <Tab.Screen name="Workouts Today" component={WorkoutsToday} />
-        <Tab.Screen name="Login" component={LoginTab} />
+        <Tab.Screen name="s" component={LoginTab} />
       </Tab.Navigator>
     </NavigationContainer>
   );

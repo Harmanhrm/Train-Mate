@@ -1,8 +1,8 @@
 import axios from "axios";
 import React, { useState } from "react";
-import { View, Text, Alert, TextInput, Button, StyleSheet } from "react-native";
+import { View, Text, Alert, TextInput, Button} from "react-native";
 import { SERVER_IP} from '@env';
-
+import styles from '../css/loginStyles';
 const LoginTab = () => {
     const [newUser, setNewUser] = useState({
         username: '',
@@ -23,8 +23,8 @@ const LoginTab = () => {
         }
       };
   return (
-    <View>
-      <Text>Login</Text>
+    <View style={styles.container} >
+      <Text>Create Your Account</Text>
       <TextInput
             placeholder="username"
             value={newUser.username}
@@ -39,26 +39,4 @@ const LoginTab = () => {
     </View>
   );
 };
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      justifyContent: 'center',
-      padding: 16,
-      backgroundColor: '#f5f5f5',
-    },
-    title: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      marginBottom: 24,
-      textAlign: 'center',
-    },
-    input: {
-      height: 40,
-      borderColor: 'gray',
-      borderWidth: 1,
-      marginBottom: 12,
-      paddingHorizontal: 8,
-      backgroundColor: 'white',
-    },
-  });
 export default LoginTab;
