@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { View, Text, Alert, TextInput, TouchableOpacity } from "react-native";
 import { SERVER_IP } from '@env';
 import styles from '../css/loginStyles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const RegisterTab = () => {
+const RegisterTab = ({ navigation }) => {
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(true);
   const [newUser, setNewUser] = useState({
     username: '',
@@ -62,7 +63,9 @@ const RegisterTab = () => {
         email
       });
       console.log('User registered', response.data);
+      await AsyncStorage.setItem('userToken', response.data.token);
       Alert.alert('Success', 'User registered successfully!');
+      navigation.navigate('Main');
     } catch (error) {
       console.error('Error registering user:', error);
       Alert.alert('Error', 'Failed to register user ' + username);
