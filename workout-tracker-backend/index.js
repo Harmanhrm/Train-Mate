@@ -2,6 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+
 const app = express();
 app.use(bodyParser.json()); 
 app.use (cors());
@@ -67,17 +69,40 @@ app.post('/users', async (req, res) => {
   try {
     console.log('Received user data:', req.body);
     const { username, password, email } = req.body;
+
+    // Validate input fields
+    if (!username || !password || !email) {
+      return res.status(400).json({ error: 'Please fill in all fields.' });
+    }
+
     const result = await pool.query(
       'INSERT INTO users (username, password, email) VALUES ($1, $2, $3) RETURNING *',
       [username, password, email]
     );
+
+    // Generate a token (for simplicity, using a placeholder value)
+    const token = jwt.sign({ userId: result.rows[0].id }, 'your_jwt_secret');
+
     console.log('User added:', result.rows[0]);
-    res.json(result.rows[0]);
+    res.json({ ...result.rows[0], token });
   } catch (error) {
     console.error('Error adding user:', error);
     res.status(500).json({ error: 'Failed to add user' });
   }
 });
+//endpoint to fetch user details
+app.get('/user-details', async (req, res) => {
+  const token = req.headers.authorization.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, 'your_jwt_secret');
+    const result = await pool.query('SELECT * FROM users WHERE id = $1', [decoded.userId]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching user details:', error);
+    res.status(500).json({ error: 'Failed to fetch user details' });
+  }
+});
+
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
