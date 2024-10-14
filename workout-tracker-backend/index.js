@@ -1,10 +1,10 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const { Pool } = require('pg');
-
+const cors = require('cors');
 const app = express();
-app.use(bodyParser.json());
-
+app.use(bodyParser.json()); 
+app.use (cors());
 const pool = new Pool({
   user: 'postgres',
   host: 'localhost',
@@ -51,8 +51,24 @@ app.get('/workout', async (req, res) => {
     const result = await pool.query('SELECT * FROM workout ORDER BY created_at DESC');
     res.json(result.rows);
   } catch (error) {
-    console.error('Error fetching workouts:', error);
+    console.error('Error fetching workout:', error);
     res.status(500).json({ error: 'Failed to fetch workouts' });
+  }
+});
+
+app.post('/users', async (req, res) => {
+  try {
+    console.log('Received user data:', req.body);
+    const { username, password } = req.body;
+    const result = await pool.query(
+      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING *',
+      [username, password]
+    );
+    console.log('User added:', result.rows[0]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding user:', error);
+    res.status(500).json({ error: 'Failed to add user' });
   }
 });
 
