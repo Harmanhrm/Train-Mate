@@ -145,6 +145,29 @@ app.get('/search-workouts', async (req, res) => {
     res.status(500).json({ error: 'Failed to search workouts' });
   }
 });
+app.get('/user-workouts', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    const { rows: workouts } = await pool.query('SELECT * FROM workout WHERE user_id = $1', [userId]);
+
+    const workoutIds = workouts.map(workout => workout.id);
+    const strengthQuery = pool.query('SELECT * FROM strength_workout WHERE workout_id = ANY($1)', [workoutIds]);
+    const cardioQuery = pool.query('SELECT * FROM cardio_workout WHERE workout_id = ANY($1)', [workoutIds]);
+
+    const [strengthWorkouts, cardioWorkouts] = await Promise.all([strengthQuery, cardioQuery]);
+
+    const result = workouts.map(workout => ({
+      ...workout,
+      strength_workouts: strengthWorkouts.rows.filter(sw => sw.workout_id === workout.id),
+      cardio_workouts: cardioWorkouts.rows.filter(cw => cw.workout_id === workout.id)
+    }));
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching user workouts:', error);
+    res.status(500).json({ error: 'Failed to fetch user workouts' });
+  }
+});
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
 });
