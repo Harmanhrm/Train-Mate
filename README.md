@@ -1,6 +1,6 @@
 ## Workout Tracker Backend
 
-- PostgreSQL wiht nodejs and express
+- PostgreSQL with nodejs and express
 
 ## Workout Tracker Frontend
 
