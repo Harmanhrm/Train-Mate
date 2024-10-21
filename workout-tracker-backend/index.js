@@ -126,9 +126,10 @@ app.post('/workout', async (req, res) => {
     client.release();
   }
 });
-app.get('/categories', async (req, res) => {
+app.get('/categories/:user_id', async (req, res) => {
+  const { user_id } = req.params;
   try {
-    const { rows } = await pool.query('SELECT id, name FROM category');
+    const { rows } = await pool.query('SELECT id, name FROM category WHERE user_id = $1', [user_id]);
     res.json(rows);
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -166,6 +167,19 @@ app.get('/user-workouts', async (req, res) => {
   } catch (error) {
     console.error('Error fetching user workouts:', error);
     res.status(500).json({ error: 'Failed to fetch user workouts' });
+  }
+});
+app.post('/categories', async (req, res) => {
+  const { name, user_id } = req.body;
+  try {
+    const result = await pool.query(
+      'INSERT INTO category (name, user_id) VALUES ($1, $2) RETURNING *',
+      [name, user_id]
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error adding category:', error);
+    res.status(500).json({ error: 'Failed to add category' });
   }
 });
 app.listen(3000, () => {
