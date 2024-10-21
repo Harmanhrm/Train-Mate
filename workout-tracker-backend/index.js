@@ -182,6 +182,72 @@ app.post('/categories', async (req, res) => {
     res.status(500).json({ error: 'Failed to add category' });
   }
 });
+// Statistic Tab Endpoints
+app.get('/api/sets/all-time', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    console.log('Fetching all-time sets for user:', userId);
+    const result = await pool.query(
+      `SELECT COUNT(*) AS set_count
+       FROM strength_workout 
+       WHERE workout_id IN (SELECT id FROM workout WHERE user_id = $1)`,
+      [userId]
+    );
+    console.log('All-time sets result:', result.rows[0]);
+    console.log('UserID: ', userId);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching all-time sets:', error);
+    res.status(500).json({ error: 'Failed to fetch all-time sets' });
+  }
+});
+
+app.get('/api/sets/day', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    console.log('Fetching daily sets for user:', userId);
+    const result = await pool.query(
+      `SELECT COUNT(*) 
+       FROM strength_workout 
+       WHERE workout_id IN (
+         SELECT id 
+         FROM workout 
+         WHERE user_id = $1 
+         AND date_trunc('day', date) = date_trunc('day', CURRENT_DATE)
+       )`,
+      [userId]
+    );
+    console.log('Daily sets result:', result.rows[0]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching daily sets:', error);
+    res.status(500).json({ error: 'Failed to fetch daily sets' });
+  }
+});
+
+app.get('/api/sets/week', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    console.log('Fetching weekly sets for user:', userId);
+    const result = await pool.query(
+      `SELECT COUNT(*) 
+       FROM strength_workout 
+       WHERE workout_id IN (
+         SELECT id 
+         FROM workout 
+         WHERE user_id = $1 
+         AND date_trunc('week', date) = date_trunc('week', CURRENT_DATE)
+       )`,
+      [userId]
+    );
+    console.log('Weekly sets result:', result.rows[0]);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Error fetching weekly sets:', error);
+    res.status(500).json({ error: 'Failed to fetch weekly sets' });
+  }
+});
+
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
 });
