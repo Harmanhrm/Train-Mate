@@ -15,7 +15,7 @@ const WorkoutsToday = ({ userDetails }) => {
   const [workoutType, setWorkoutType] = useState('cardio');
   const [newWorkout, setNewWorkout] = useState({
     name: '',
-    categoryId: null,
+    categoryId: '',
     typeId: null,
     userId: userDetails.id,
   });
@@ -90,19 +90,20 @@ const WorkoutsToday = ({ userDetails }) => {
       setSearchResults([]);
     }
   };
-
   const handleAddWorkout = async () => {
     try {
       const filteredStrengthSets = completedStrengthSets.filter(set => set.reps !== '' && set.weight !== '' && set.rpe !== '');
   
       const workoutData = {
         ...newWorkout,
+        categoryId: newWorkout.categoryId || null,
         typeId: workoutType === 'cardio' ? 2 : 1,
         cardioDetails: workoutType === 'cardio' ? newCardioWorkout : null,
         strengthDetails: workoutType === 'strength' ? filteredStrengthSets : null,
         date: selectedDate.toISOString(), // Use selectedDate instead of new Date()
       };
-  
+      console.log('Category ID:', newWorkout.categoryId);
+
       console.log('Sending workout data:', workoutData);
   
       const workoutResponse = await axios.post(`http://${SERVER_IP}:3000/workout`, workoutData);
@@ -278,14 +279,23 @@ const WorkoutsToday = ({ userDetails }) => {
     <Picker
       selectedValue={newWorkout.categoryId}
       style={styles.input}
-      onValueChange={(itemValue) => setNewWorkout({ ...newWorkout, categoryId: itemValue })}
+      onValueChange={(itemValue) => {
+        setNewWorkout((prevWorkout) => {
+          const updatedWorkout = { ...prevWorkout, categoryId: itemValue };
+          console.log('Updated newWorkout:', updatedWorkout);
+          return updatedWorkout;
+        });
+      }}
     >
       {categories.map((category) => (
         <Picker.Item key={category.id} label={category.name} value={category.id} />
       ))}
+       {newWorkout.categoryId === '' && categories.length === 1 && (() => {
+         setNewWorkout((prevWorkout) => ({ ...prevWorkout, categoryId: categories[0].id }));
+         return null;
+       })()}
     </Picker>
   );
-
   const renderSearchResults = () => (
     showSuggestions && newWorkout.name.trim() !== '' && searchResults.map((result) => (
       <TouchableOpacity key={result.id} onPress={() => setNewWorkout({ ...newWorkout, name: result.name })}>
