@@ -63,7 +63,7 @@ const WorkoutsToday = ({ userDetails }) => {
   };
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3000/categories`);
+      const response = await axios.get(`http://${SERVER_IP}:3000/categories/${userDetails.id}`);
       setCategories(response.data);
     } catch (error) {
       console.log('Error', 'Failed to fetch categories');
