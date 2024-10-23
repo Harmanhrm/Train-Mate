@@ -33,10 +33,71 @@ It scales with your fitness journey, adapting to your own workouts and categorie
 - **Data Handling**: Axios for HTTP requests, bodyParser for JSON parsing
 - **Cross-Origin Resource Sharing**: Managed using CORS for secure API access
 
-## How to Run
+## How to Run the Workout Tracker Application
 
-1. Clone the repository.
-2. Install dependencies using `npm install`.
-3. Set up PostgreSQL and configure your credentials in the `Pool` constructor.
-4. Run the server: `node app.js`.
-5. API will be available at `http://localhost:3000`.
+Follow these steps to set up and run the workout tracker application locally:
+
+### Prerequisites
+
+1. **Node.js**: Ensure you have Node.js installed on your machine. You can download it from [Node.js official website](https://nodejs.org/).
+2. **Expo CLI**: Install Expo CLI globally by running the following command in your terminal:
+   ```bash
+   npm install -g expo-cli
+   ```
+3. **PostgreSQL**: Set up PostgreSQL on your local machine. Make sure you have created a database named `workout` and the required tables (e.g., `users`, `workout`, `strength_workout`, etc.).
+
+### Backend Setup
+
+1. **Clone the Backend Repository**:
+   ```bash
+   git clone <your-backend-repo-url>
+   cd <your-backend-folder>
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Configure Database Connection**: 
+   - Open the backend file where the database connection is established (as shown in the provided code).
+   - Ensure the PostgreSQL connection details (username, password, database name) match your local setup.
+
+4. **Start the Backend Server**:
+   ```bash
+   node index.js
+   ```
+   - Replace `index.js` with the main file of your backend if it's named differently.
+   - Your backend server will run on `http://localhost:3000`.
+
+### Frontend Setup
+
+1. **Clone the Frontend Repository**:
+   ```bash
+   git clone <your-frontend-repo-url>
+   cd <your-frontend-folder>
+   ```
+
+2. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the Expo Development Server**:
+   ```bash
+   expo start
+   ```
+
+4. **Open the Application**:
+   - Follow the instructions in the terminal to open the app on your mobile device using the Expo Go app or in an emulator.
+
+### Testing the Application
+
+1. **Create a User**: Use the registration page to create a new user account.
+2. **Log Workouts**: Navigate to the workout logging page to log strength and cardio workouts.
+3. **Track Progress**: Use the statistics tab to view your workout stats over different periods.
+
+### Notes
+
+- Ensure both the backend server and the frontend application are running simultaneously for the app to function correctly.
+- If you encounter any issues, check the terminal for error messages and troubleshoot accordingly.
