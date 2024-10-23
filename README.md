@@ -5,11 +5,6 @@ Ever forgotten to log your workouts or spent hours trying to find the perfect sy
 This workout tracker is the custom-built solution you've been waiting for!
 It scales with your fitness journey, adapting to your own workouts and categories. Whether you're just starting out or a seasoned gym-goer, this app lets you go at your own pace while keeping everything organized.
 
-With this workout tracker, you can:
-- Log both strength and cardio workouts effortlessly
-- Create and categorize custom workouts to match your routine
-- Track your progress over time, with stats like total sets completed daily, weekly, and all-time
-
 ## Tech Stack
 
 - **Frontend**: React Native with expo go
