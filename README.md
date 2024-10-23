@@ -1,7 +1,8 @@
 
 # Workout Tracker App
 Ever forgotten to log your workouts or spent hours trying to find the perfect system to track your progress? 
-This workout tracker is the custom-built solution you've been waiting for!!
+
+This workout tracker is the custom-built solution you've been waiting for!
 It scales with your fitness journey, adapting to your own workouts and categories. Whether you're just starting out or a seasoned gym-goer, this app lets you go at your own pace while keeping everything organized.
 
 With this workout tracker, you can:
