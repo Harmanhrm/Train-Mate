@@ -182,7 +182,6 @@ app.post('/categories', async (req, res) => {
     res.status(500).json({ error: 'Failed to add category' });
   }
 });// Statistic Tab Endpoints
-
 app.get('/api/workout/consistency', async (req, res) => {
   const { userId } = req.query;
   try {
@@ -190,8 +189,7 @@ app.get('/api/workout/consistency', async (req, res) => {
     const result = await pool.query(
       `SELECT date 
        FROM workout 
-       WHERE user_id = $1 
-       AND date_trunc('day', date) = date_trunc('day', CURRENT_DATE)`,
+       WHERE user_id = $1`,
       [userId]
     );
     console.log('Workout consistency result:', result.rows);
