@@ -3,7 +3,6 @@ import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-nat
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import axios from 'axios';
-import RNPickerSelect from 'react-native-picker-select';
 import { SERVER_IP } from '@env';
 
 const screenWidth = Dimensions.get('window').width;
@@ -17,7 +16,6 @@ interface StatisticsTabProps {
 }
 
 const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
-  const [timePeriod, setTimePeriod] = useState('all-time');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,22 +54,10 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
     };
 
     fetchConsistency();
-  }, [timePeriod, userDetails]);
+  }, [userDetails]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.pickerContainer}>
-        <RNPickerSelect
-          onValueChange={(value) => setTimePeriod(value)}
-          items={[
-            { label: 'All Time', value: 'all-time' },
-            { label: 'Day', value: 'day' },
-            { label: 'Week', value: 'week' },
-          ]}
-          style={pickerSelectStyles}
-          placeholder={{ label: 'Select Time Period', value: '' }}
-        />
-      </View>
       {loading ? (
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
@@ -103,10 +89,6 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
-  pickerContainer: {
-    marginBottom: 20,
-    width: '100%',
-  },
   totalSetsText: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -115,31 +97,6 @@ const styles = StyleSheet.create({
   chart: {
     marginVertical: 8,
     borderRadius: 16,
-  },
-});
-
-const pickerSelectStyles = StyleSheet.create({
-  inputIOS: {
-    fontSize: 16,
-    paddingVertical: 12,
-    paddingHorizontal: 10,
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 4,
-    color: 'black',
-    paddingRight: 30,
-    backgroundColor: 'white',
-  },
-  inputAndroid: {
-    fontSize: 16,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 0.5,
-    borderColor: 'purple',
-    borderRadius: 8,
-    color: 'black',
-    paddingRight: 30,
-    backgroundColor: 'white',
   },
 });
 
