@@ -20,7 +20,7 @@ const StatisticsTab = ({ userDetails }) => {
       try {
         const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
         const response = await axios.get(endpoint, {
-          params: { userId: details.id},
+          params: { userId: details[0].id },
         });
 
         const workoutDates = response.data.map(item => item.date);
