@@ -1,30 +1,42 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { BarChart, LineChart } from 'react-native-chart-kit';
+import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import axios from 'axios';
 import RNPickerSelect from 'react-native-picker-select';
 import { SERVER_IP } from '@env';
+
 const screenWidth = Dimensions.get('window').width;
-const StatisticsTab = ({ userDetails }) => {
+
+interface UserDetails {
+  id: number;
+}
+
+interface StatisticsTabProps {
+  userDetails: UserDetails | null;
+}
+
+const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
   const [timePeriod, setTimePeriod] = useState('all-time');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
- const [details, setUserID] =  useState([
-  {
-  id: userDetails.id
-  }
- ]);
+
   useEffect(() => {
     const fetchConsistency = async () => {
+      if (!userDetails || !userDetails.id) {
+        console.error('User details are missing or invalid', userDetails);
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
       try {
         const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
         const response = await axios.get(endpoint, {
-          params: { userId: details[0].id },
+          params: { userId: userDetails.id },
         });
 
-        const workoutDates = response.data.map(item => item.date);
-        const dateCounts = workoutDates.reduce((acc, date) => {
+        const workoutDates = response.data.map((item: { date: string }) => item.date);
+        const dateCounts = workoutDates.reduce((acc: { [key: string]: number }, date: string) => {
           const day = new Date(date).toLocaleDateString();
           acc[day] = (acc[day] || 0) + 1;
           return acc;
@@ -44,7 +56,7 @@ const StatisticsTab = ({ userDetails }) => {
     };
 
     fetchConsistency();
-  }, [timePeriod]);
+  }, [timePeriod, userDetails]);
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
