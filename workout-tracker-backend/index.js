@@ -181,20 +181,37 @@ app.post('/categories', async (req, res) => {
     console.error('Error adding category:', error);
     res.status(500).json({ error: 'Failed to add category' });
   }
+});// Statistic Tab Endpoints
+
+app.get('/api/workout/consistency', async (req, res) => {
+  const { userId } = req.query;
+  try {
+    console.log('Fetching workout consistency for user:', userId);
+    const result = await pool.query(
+      `SELECT date 
+       FROM workout 
+       WHERE user_id = $1 
+       AND date_trunc('day', date) = date_trunc('day', CURRENT_DATE)`,
+      [userId]
+    );
+    console.log('Workout consistency result:', result.rows);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching workout consistency:', error);
+    res.status(500).json({ error: 'Failed to fetch workout consistency' });
+  }
 });
-// Statistic Tab Endpoints
 app.get('/api/sets/all-time', async (req, res) => {
   const { userId } = req.query;
   try {
     console.log('Fetching all-time sets for user:', userId);
     const result = await pool.query(
-      `SELECT COUNT(*) AS set_count
+      `SELECT COUNT(*) 
        FROM strength_workout 
        WHERE workout_id IN (SELECT id FROM workout WHERE user_id = $1)`,
       [userId]
     );
     console.log('All-time sets result:', result.rows[0]);
-    console.log('UserID: ', userId);
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error fetching all-time sets:', error);
