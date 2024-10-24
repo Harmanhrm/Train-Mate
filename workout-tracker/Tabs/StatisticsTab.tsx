@@ -10,19 +10,17 @@ const StatisticsTab = ({ userDetails }) => {
   const [timePeriod, setTimePeriod] = useState('all-time');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-
+ const [details, setUserID] =  useState([
+  {
+  id: userDetails.id
+  }
+ ]);
   useEffect(() => {
     const fetchConsistency = async () => {
-      if (!userDetails || !userDetails.id) {
-        console.error('User details are missing or invalid', userDetails.id);
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
       try {
         const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
         const response = await axios.get(endpoint, {
-          params: { userId: userDetails.id },
+          params: { userId: details.id},
         });
 
         const workoutDates = response.data.map(item => item.date);
