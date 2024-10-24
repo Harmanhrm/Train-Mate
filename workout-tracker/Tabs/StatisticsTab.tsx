@@ -1,42 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { BarChart } from 'react-native-chart-kit';
+import { BarChart, LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import axios from 'axios';
 import RNPickerSelect from 'react-native-picker-select';
 import { SERVER_IP } from '@env';
 const screenWidth = Dimensions.get('window').width;
-
 const StatisticsTab = ({ userDetails }) => {
   const [timePeriod, setTimePeriod] = useState('all-time');
-  const [data, setData] = useState(0);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchConsistency = async () => {
+      if (!userDetails || !userDetails.id) {
+        console.error('User details are missing or invalid', userDetails.id);
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       try {
-        let endpoint = '';
-        if (timePeriod === 'all-time') {
-          endpoint = `http://${SERVER_IP}:3000/api/sets/all-time`;
-        } else if (timePeriod === 'day') {
-          endpoint = `http://${SERVER_IP}:3000/api/sets/day`;
-        } else if (timePeriod === 'week') {
-          endpoint = `http://${SERVER_IP}:3000/api/sets/week`;
-        }
-
+        const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
         const response = await axios.get(endpoint, {
           params: { userId: userDetails.id },
         });
 
-        setData(response.data.count);
+        const workoutDates = response.data.map(item => item.date);
+        const dateCounts = workoutDates.reduce((acc, date) => {
+          const day = new Date(date).toLocaleDateString();
+          acc[day] = (acc[day] || 0) + 1;
+          return acc;
+        }, {});
+
+        const formattedData = Object.keys(dateCounts).map(date => ({
+          date,
+          count: dateCounts[date],
+        }));
+
+        setData(formattedData);
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchConsistency();
   }, [timePeriod]);
 
   return (
@@ -57,11 +66,11 @@ const StatisticsTab = ({ userDetails }) => {
         <ActivityIndicator size="large" color="#0000ff" />
       ) : (
         <>
-          <Text style={styles.totalSetsText}>Total Sets: {data}</Text>
-          <BarChart
+          <Text style={styles.totalSetsText}>Consistency Over Time</Text>
+          <LineChart
             data={{
-              labels: ['Sets'],
-              datasets: [{ data: [data] }],
+              labels: data.map(item => item.date),
+              datasets: [{ data: data.map(item => item.count) }],
             }}
             width={screenWidth - 40}
             height={220}
