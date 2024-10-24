@@ -3,6 +3,7 @@ import { View, ScrollView, Text, StyleSheet, ActivityIndicator } from 'react-nat
 import { LineChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import axios from 'axios';
+import { useFocusEffect } from '@react-navigation/native';
 import { SERVER_IP } from '@env';
 
 const screenWidth = Dimensions.get('window').width;
@@ -19,42 +20,44 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchConsistency = async () => {
-      if (!userDetails || !userDetails.id) {
-        console.error('User details are missing or invalid', userDetails);
-        setLoading(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
-        const response = await axios.get(endpoint, {
-          params: { userId: userDetails.id },
-        });
+  const fetchConsistency = async () => {
+    if (!userDetails || !userDetails.id) {
+      console.error('User details are missing or invalid', userDetails);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    try {
+      const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
+      const response = await axios.get(endpoint, {
+        params: { userId: userDetails.id },
+      });
 
-        const workoutDates = response.data.map((item: { date: string }) => item.date);
-        const dateCounts = workoutDates.reduce((acc: { [key: string]: number }, date: string) => {
-          const day = new Date(date).toLocaleDateString();
-          acc[day] = (acc[day] || 0) + 1;
-          return acc;
-        }, {});
+      const workoutDates = response.data.map((item: { date: string }) => item.date);
+      const dateCounts = workoutDates.reduce((acc: { [key: string]: number }, date: string) => {
+        const day = new Date(date).toLocaleDateString();
+        acc[day] = (acc[day] || 0) + 1;
+        return acc;
+      }, {});
 
-        const formattedData = Object.keys(dateCounts).map(date => ({
-          date,
-          count: dateCounts[date],
-        }));
+      const formattedData = Object.keys(dateCounts).map(date => ({
+        date,
+        count: dateCounts[date],
+      }));
 
-        setData(formattedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      setData(formattedData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchConsistency();
-  }, [userDetails]);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchConsistency();
+    }, [userDetails])
+  );
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
