@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Alert, TextInput, TouchableOpacity } from "react-native";
 import { SERVER_IP } from '@env';
 import styles from '../css/loginStyles';
@@ -13,6 +13,7 @@ const RegisterTab = ({ navigation }) => {
     confirmPassword: '',
     email: ''
   });
+  const [userDetails, setUserDetails] = useState(null);
 
   const checkUsernameAvailability = async (username) => {
     if (username.length < 6) {
@@ -62,15 +63,26 @@ const RegisterTab = ({ navigation }) => {
         password,
         email
       });
+
+      if (!response.data || !response.data.token || !response.data.id) {
+        throw new Error('Invalid response data');
+      }
+
       console.log('User registered', response.data);
       await AsyncStorage.setItem('userToken', response.data.token);
+      setUserDetails(response.data);
       Alert.alert('Success', 'User registered successfully!');
-      navigation.navigate('Main');
     } catch (error) {
       console.error('Error registering user:', error);
       Alert.alert('Error', 'Failed to register user ' + username);
     }
   };
+
+  useEffect(() => {
+    if (userDetails) {
+      navigation.navigate('Main', { userDetails });
+    }
+  }, [userDetails]);
 
   return (
     <View style={styles.container}>
