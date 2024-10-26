@@ -262,6 +262,45 @@ app.get('/api/sets/week', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch weekly sets' });
   }
 });
+// Add this endpoint to your existing server code
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Validate input fields
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Please fill in all fields.' });
+    }
+
+    // Check if user exists and password matches
+    const result = await pool.query(
+      'SELECT * FROM users WHERE username = $1 AND password = $2',
+      [username, password]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: 'Invalid username or password' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: result.rows[0].id }, 
+      'your_jwt_secret',
+      { expiresIn: '24h' }
+    );
+
+    // Return user data and token
+    res.json({
+      id: result.rows[0].id,
+      username: result.rows[0].username,
+      email: result.rows[0].email,
+      token
+    });
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
 
 app.listen(3000, () => {
   console.log('Server is running on http://localhost:3000');
