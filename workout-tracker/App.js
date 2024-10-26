@@ -1,3 +1,5 @@
+
+// Updated App.js
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
@@ -5,6 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigation from './Tabs/TabNavigation';
 import RegisterTab from './Tabs/RegisterTab';
+import LoginTab from './Tabs/LoginTab';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -29,6 +32,9 @@ const App = () => {
           setUserDetails(response.data);
         } catch (error) {
           console.error('Error fetching user details:', error);
+          // Clear invalid token
+          await AsyncStorage.removeItem('userToken');
+          setUserToken(null);
         }
       }
       setIsLoading(false);
@@ -47,7 +53,8 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={userToken ? "Main" : "Register"}>
+      <Stack.Navigator initialRouteName={userToken ? "Main" : "Login"}>
+        <Stack.Screen name="Login" component={LoginTab} />
         <Stack.Screen name="Register" component={RegisterTab} />
         <Stack.Screen name="Main" options={{ headerShown: false }}>
           {props => <TabNavigation {...props} userDetails={userDetails} />}
@@ -59,12 +66,3 @@ const App = () => {
 };
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-});
