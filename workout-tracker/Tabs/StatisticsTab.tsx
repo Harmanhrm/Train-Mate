@@ -16,13 +16,13 @@ interface StatisticsTabProps {
   userDetails: UserDetails | null;
 }
 
-const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
+const StatisticsTab: React.FC<StatisticsTabProps> = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchConsistency = async () => {
-    if (!userDetails || !userDetails.id) {
-      console.error('User details are missing or invalid', userDetails);
+    if (!data) {
+      console.error('User details are missing or invalid');
       setLoading(false);
       return;
     }
@@ -30,7 +30,7 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
     try {
       const endpoint = `http://${SERVER_IP}:3000/api/workout/consistency`;
       const response = await axios.get(endpoint, {
-        params: { userId: userDetails.id },
+       
       });
 
       const workoutDates = response.data.map((item: { date: string }) => item.date);
@@ -53,11 +53,8 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ userDetails }) => {
     }
   };
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchConsistency();
-    }, [userDetails])
-  );
+  
+  
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
