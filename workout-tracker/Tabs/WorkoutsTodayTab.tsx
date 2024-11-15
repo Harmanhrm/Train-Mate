@@ -1,15 +1,46 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, Alert, Modal, TextInput, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import axios from 'axios';
 import { List } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { SERVER_IP } from '@env';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSQLiteContext } from 'expo-sqlite';
 
+// Define interfaces for type safety
+interface Workout {
+  id: number;
+  name: string;
+  category_id: number;
+  type_id: number;
+  date: string;
+  category_name?: string;
+  strength_data?: string;
+  cardio_data?: string;
+  strength_workouts?: StrengthSet[];
+  cardio_workouts?: CardioWorkout[];
+}
 
-const WorkoutsToday = ({ userDetails }) => {
-  const [workouts, setWorkouts] = useState([]);
+interface StrengthSet {
+  set_number: number;
+  reps: number;
+  weight: number;
+  rpe: number;
+}
+
+interface CardioWorkout {
+  distance: string;
+  calories: string;
+  speed: string;
+  time: string;
+}
+
+interface Category {
+  id: number;
+  name: string;
+}
+const WorkoutsToday = () => {
+  const db = useSQLiteContext();
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [expanded, setExpanded] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
   const [workoutType, setWorkoutType] = useState('cardio');
@@ -17,7 +48,6 @@ const WorkoutsToday = ({ userDetails }) => {
     name: '',
     categoryId: '',
     typeId: null,
-    userId: userDetails.id,
   });
   const [categories, setCategories] = useState([]);
   const [strengthSets, setStrengthSets] = useState([
@@ -40,84 +70,136 @@ const WorkoutsToday = ({ userDetails }) => {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+
   
   useEffect(() => {
-    fetchWorkouts(selectedDate);
-    fetchCategories();
-  }, [selectedDate]);
-
-  const fetchWorkouts = async (date) => {
-    try {
-      console.log('Fetching workouts for date:', date);
-      const response = await axios.get(`http://${SERVER_IP}:3000/user-workouts`, { params: { userId: userDetails.id } });
-      const filteredWorkouts = response.data.filter(workout => {
-        const workoutDate = new Date(workout.date).toLocaleDateString('en-US');
-        const selectedDate = new Date(date).toLocaleDateString('en-US');
-        return workoutDate === selectedDate;
-      });
-      const sortedWorkouts = filteredWorkouts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      setWorkouts(sortedWorkouts);
-    } catch (error) {
-      console.log('Error', 'Failed to fetch workouts');
-    }
-  };
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get(`http://${SERVER_IP}:3000/categories/${userDetails.id}`);
-      setCategories(response.data);
-    } catch (error) {
-      console.log('Error', 'Failed to fetch categories');
-    }
-  };
-
-  const searchWorkouts = async (name) => {
-    try {
-      const response = await axios.get(`http://${SERVER_IP}:3000/search-workouts`, { params: { name } });
-      setSearchResults(response.data);
-    } catch (error) {
-      console.log('Error', 'Failed to search workouts');
-    }
-  };
-
-  const handleNameChange = (text) => {
-    setNewWorkout({ ...newWorkout, name: text });
-    if (searchTimer) {
-      clearTimeout(searchTimer);
-    }
-    if (text.trim() !== '') {
-      setSearchTimer(setTimeout(() => searchWorkouts(text), 300));
-    } else {
-      setSearchResults([]);
-    }
-  };
-  const handleAddWorkout = async () => {
-    try {
-      const filteredStrengthSets = completedStrengthSets.filter(set => set.reps !== '' && set.weight !== '' && set.rpe !== '');
-  
-      const workoutData = {
-        ...newWorkout,
-        categoryId: newWorkout.categoryId || null,
-        typeId: workoutType === 'cardio' ? 2 : 1,
-        cardioDetails: workoutType === 'cardio' ? newCardioWorkout : null,
-        strengthDetails: workoutType === 'strength' ? filteredStrengthSets : null,
-        date: selectedDate.toISOString(), // Use selectedDate instead of new Date()
-      };
-      console.log('Category ID:', newWorkout.categoryId);
-
-      console.log('Sending workout data:', workoutData);
-  
-      const workoutResponse = await axios.post(`http://${SERVER_IP}:3000/workout`, workoutData);
-  
-      console.log('Workout added successfully:', workoutResponse.data);
-  
+    if (db) {
       fetchWorkouts(selectedDate);
+      fetchCategories();
+    }
+  }, [db, selectedDate]);
+
+  const fetchWorkouts = async (date: Date) => {
+    try {
+      const dateString = date.toISOString().split('T')[0];
+      const result = await db.getAllAsync<Workout>(`
+        SELECT w.*, c.name as category_name,
+        GROUP_CONCAT(sw.set_number || ',' || sw.reps || ',' || sw.weight || ',' || sw.rpe) as strength_data,
+        GROUP_CONCAT(cw.distance || ',' || cw.calories || ',' || cw.speed || ',' || cw.time) as cardio_data
+        FROM workouts w 
+        LEFT JOIN categories c ON w.category_id = c.id
+        LEFT JOIN strength_workouts sw ON w.id = sw.workout_id
+        LEFT JOIN cardio_workouts cw ON w.id = cw.workout_id
+        WHERE date(w.date) = ?
+        GROUP BY w.id
+        ORDER BY w.date DESC`,
+        [dateString]
+      );
+
+      const processedWorkouts = result.map(workout => {
+        const processed: Workout = {
+          ...workout,
+          strength_workouts: workout.strength_data ? 
+            workout.strength_data.split(',').reduce<StrengthSet[]>((acc, curr, i) => {
+              if (i % 4 === 0) {
+                acc.push({
+                  set_number: parseInt(curr),
+                  reps: parseInt(workout.strength_data!.split(',')[i + 1]),
+                  weight: parseFloat(workout.strength_data!.split(',')[i + 2]),
+                  rpe: parseInt(workout.strength_data!.split(',')[i + 3])
+                });
+              }
+              return acc;
+            }, []) : undefined,
+          cardio_workouts: workout.cardio_data ? 
+            [{
+              distance: workout.cardio_data.split(',')[0],
+              calories: workout.cardio_data.split(',')[1],
+              speed: workout.cardio_data.split(',')[2],
+              time: workout.cardio_data.split(',')[3]
+            }] : undefined
+        };
+        return processed;
+      });
+      setWorkouts(processedWorkouts);
+    } catch (error) {
+      console.error('Error fetching workouts:', error);
+      Alert.alert('Error', 'Failed to fetch workouts');
+    }
+  };
+
+  const handleAddWorkout = async () => {
+    if (!newWorkout.name) {
+      Alert.alert('Error', 'Please enter a workout name');
+      return;
+    }
+
+    try {
+      // Insert main workout
+      const workoutResult = await db.runAsync(
+        'INSERT INTO workouts (name, category_id, type_id, date) VALUES (?, ?, ?, ?)',
+        [
+          newWorkout.name,
+          newWorkout.categoryId || null,
+          workoutType === 'cardio' ? 2 : 1,
+          selectedDate.toISOString()
+        ]
+      );
+
+      const workoutId = workoutResult.lastInsertRowId;
+
+      // Insert workout details
+      if (workoutType === 'strength' && completedStrengthSets.length > 0) {
+        for (const set of completedStrengthSets) {
+          await db.runAsync(
+            'INSERT INTO strength_workouts (workout_id, set_number, reps, weight, rpe) VALUES (?, ?, ?, ?, ?)',
+            [workoutId, set.set_number, set.reps, set.weight, set.rpe]
+          );
+        }
+      } else if (workoutType === 'cardio') {
+        await db.runAsync(
+          'INSERT INTO cardio_workouts (workout_id, distance, calories, speed, time) VALUES (?, ?, ?, ?, ?)',
+          [workoutId, newCardioWorkout.distance, newCardioWorkout.calories, newCardioWorkout.speed, newCardioWorkout.time]
+        );
+      }
+
+      // Refresh data and reset form
+      await fetchWorkouts(selectedDate);
       setModalVisible(false);
-      setCompletedStrengthSets([]); // Clear completed sets after successful add
+      setCompletedStrengthSets([]);
+      setNewCardioWorkout({ distance: '', calories: '', speed: '', time: '' });
+      setNewWorkout({ name: '', categoryId: '', typeId: null });
     } catch (error) {
       console.error('Error adding workout:', error);
       Alert.alert('Error', 'Failed to add workout');
     }
   };
+
+  const fetchCategories = async () => {
+    try {
+      const result = await db.getAllAsync<Category>('SELECT * FROM categories ORDER BY name');
+      console.log('Fetched categories:', result); // Debug log
+      setCategories(result);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      Alert.alert('Error', 'Failed to fetch categories');
+    }
+  };
+
+  const searchWorkouts = async (name) => {
+    if (!db) return;
+    
+    try {
+      const result = await db.getAllAsync(
+        'SELECT DISTINCT name FROM workouts WHERE name LIKE ?',
+        [`%${name}%`]
+      );
+      setSearchResults(result);
+    } catch (error) {
+      console.error('Error searching workouts:', error);
+    }
+  };
+
 
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -309,7 +391,17 @@ const WorkoutsToday = ({ userDetails }) => {
     setShowDatePicker(false);
     setSelectedDate(currentDate);
   };
-  
+  const handleNameChange = (text) => {
+    setNewWorkout({ ...newWorkout, name: text });
+    if (searchTimer) {
+      clearTimeout(searchTimer);
+    }
+    if (text.trim() !== '') {
+      setSearchTimer(setTimeout(() => searchWorkouts(text), 300));
+    } else {
+      setSearchResults([]);
+    }
+  };
   const changeDate = (days) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + days);
@@ -335,7 +427,7 @@ const WorkoutsToday = ({ userDetails }) => {
   return (
     <View style={{ flex: 1, padding: 20, marginBottom: 1 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text style={styles.welcomeText}>Welcome, {userDetails.username}!</Text>
+        <Text style={styles.welcomeText}>Workout Tracker</Text>
         <View style={[styles.dates, { flexDirection: 'row', alignItems: 'center' }]}>
           <TouchableOpacity onPress={() => changeDate(-1)}>
             <Icon name="arrow-back" size={20} />
