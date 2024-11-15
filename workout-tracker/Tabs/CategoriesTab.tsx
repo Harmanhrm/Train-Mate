@@ -5,7 +5,7 @@ import { List } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { SERVER_IP } from '@env';
 
-const Categories = ({ userDetails }) => {
+const Categories = () => {
   const [categories, setCategories] = useState([]);
   const [expanded, setExpanded] = useState({});
   const [modalVisible, setModalVisible] = useState(false);
@@ -18,7 +18,7 @@ const Categories = ({ userDetails }) => {
 
   const fetchCategories = async () => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3000/categories/${userDetails.id}`);
+      const response = await axios.get(`http://${SERVER_IP}:3000/categories/`);
       setCategories(response.data);
     } catch (error) {
       console.log('Error', 'Failed to fetch categories');
@@ -27,7 +27,7 @@ const Categories = ({ userDetails }) => {
 
   const fetchWorkoutsForCategory = async (categoryId) => {
     try {
-      const response = await axios.get(`http://${SERVER_IP}:3000/user-workouts`, { params: { userId: userDetails.id } });
+      const response = await axios.get(`http://${SERVER_IP}:3000/user-workouts`);
       const categoryWorkouts = response.data.filter(workout => workout.category_id === categoryId);
       setWorkouts(prevWorkouts => ({ ...prevWorkouts, [categoryId]: categoryWorkouts }));
     } catch (error) {
@@ -37,7 +37,7 @@ const Categories = ({ userDetails }) => {
 
   const handleAddCategory = async () => {
     try {
-      const response = await axios.post(`http://${SERVER_IP}:3000/categories`, { name: newCategory, user_id: userDetails.id });
+      const response = await axios.post(`http://${SERVER_IP}:3000/categories`, { name: newCategory});
       setCategories([...categories, response.data]);
       setModalVisible(false);
       setNewCategory('');
