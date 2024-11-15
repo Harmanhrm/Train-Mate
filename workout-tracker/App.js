@@ -1,90 +1,86 @@
+// App.js
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, ActivityIndicator } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import TabNavigation from './Tabs/TabNavigation';
-import RegisterTab from './Tabs/RegisterTab';
-import LoginTab from './Tabs/LoginTab';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { SERVER_IP } from '@env';
+import { SQLiteProvider } from 'expo-sqlite/next';
 
 const Stack = createStackNavigator();
 
-const App = () => {
-  const [isLoading, setIsLoading] = useState(true);
-  const [userToken, setUserToken] = useState(null);
-  const [userDetails, setUserDetails] = useState(null);
+async function setupDatabase(db) {
+  await db.execAsync(`
+    PRAGMA journal_mode = WAL;
+    PRAGMA foreign_keys = ON;
 
-  useEffect(() => {
-    const checkLoginState = async () => {
-      const token = await AsyncStorage.getItem('userToken');
-      if (token) {
-        setUserToken(token);
-        try {
-          const response = await axios.get(`http://${SERVER_IP}:3000/user-details`, {
-            headers: { Authorization: `Bearer ${token}` }
-          });
-          setUserDetails(response.data);
-        } catch (error) {
-          console.error('Error fetching user details:', error);
-          await AsyncStorage.removeItem('userToken');
-          setUserToken(null);
-        }
-      }
-      setIsLoading(false);
-    };
-
-    checkLoginState();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator size="large" color="#0000ff" />
-      </View>
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL
     );
-  }
 
+    CREATE TABLE IF NOT EXISTS workouts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      category_id INTEGER,
+      type_id INTEGER NOT NULL,
+      date TEXT NOT NULL,
+      FOREIGN KEY (category_id) REFERENCES categories (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS strength_workouts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workout_id INTEGER,
+      set_number INTEGER,
+      reps INTEGER,
+      weight REAL,
+      rpe INTEGER,
+      FOREIGN KEY (workout_id) REFERENCES workouts (id)
+    );
+
+    CREATE TABLE IF NOT EXISTS cardio_workouts (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      workout_id INTEGER,
+      distance TEXT,
+      calories TEXT,
+      speed TEXT,
+      time TEXT,
+      FOREIGN KEY (workout_id) REFERENCES workouts (id)
+    );
+
+    INSERT OR IGNORE INTO categories (id, name) VALUES 
+      (1, 'Upper Body'),
+      (2, 'Lower Body'),
+      (3, 'Core'),
+      (4, 'Cardio'),
+      (5, 'Full Body');
+  `);
+}
+
+function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName={userToken ? "Main" : "Login"}>
-        <Stack.Screen 
-          name="Login" 
-          component={LoginTab}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Register" 
-          component={RegisterTab}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen 
-          name="Main" 
-          options={{ headerShown: false }}>
-          {props => <TabNavigation {...props} userDetails={userDetails} />}
-        </Stack.Screen>
-      </Stack.Navigator>
-      <StatusBar style="auto" />
-    </NavigationContainer>
+    <View style={styles.container}>
+      <SQLiteProvider databaseName="fitness.db" onInit={setupDatabase}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Main">
+            <Stack.Screen
+              name="Main"
+              component={TabNavigation}
+              options={{ headerShown: false }}
+            />
+          </Stack.Navigator>
+          <StatusBar style="auto" />
+        </NavigationContainer>
+      </SQLiteProvider>
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  }
 });
 
 export default App;
