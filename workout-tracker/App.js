@@ -1,5 +1,3 @@
-
-// Updated App.js
 import 'react-native-gesture-handler';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View, ActivityIndicator } from 'react-native';
@@ -32,7 +30,6 @@ const App = () => {
           setUserDetails(response.data);
         } catch (error) {
           console.error('Error fetching user details:', error);
-          // Clear invalid token
           await AsyncStorage.removeItem('userToken');
           setUserToken(null);
         }
@@ -46,7 +43,7 @@ const App = () => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" />
+        <ActivityIndicator size="large" color="#0000ff" />
       </View>
     );
   }
@@ -54,9 +51,19 @@ const App = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator initialRouteName={userToken ? "Main" : "Login"}>
-        <Stack.Screen name="Login" component={LoginTab} />
-        <Stack.Screen name="Register" component={RegisterTab} />
-        <Stack.Screen name="Main" options={{ headerShown: false }}>
+        <Stack.Screen 
+          name="Login" 
+          component={LoginTab}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Register" 
+          component={RegisterTab}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="Main" 
+          options={{ headerShown: false }}>
           {props => <TabNavigation {...props} userDetails={userDetails} />}
         </Stack.Screen>
       </Stack.Navigator>
@@ -64,5 +71,20 @@ const App = () => {
     </NavigationContainer>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  }
+});
 
 export default App;
