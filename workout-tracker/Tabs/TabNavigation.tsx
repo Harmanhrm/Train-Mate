@@ -31,13 +31,7 @@ const TabNavigation = ({ userDetails }) => {
       })}
     >
       <Tab.Screen name="Workouts Today">
-        {props => <WorkoutsToday {...props} userDetails={userDetails} />}
-      </Tab.Screen>
-      <Tab.Screen name="Categories">
-        {props => <CategoriesTab {...props} userDetails={userDetails} />}
-      </Tab.Screen>
-      <Tab.Screen name="Statistics">
-        {props => <StatisticsTab {...props} userDetails={userDetails} />}
+        {props => <WorkoutsToday/>}
       </Tab.Screen>
     </Tab.Navigator>
   );
