@@ -1,4 +1,4 @@
-
+### In Progress to Change Database to SQlite to use application offline and enable local data storage
 # Workout Tracker App
 Ever forgotten to log your workouts or spent hours trying to find the perfect system to track your progress? 
 
