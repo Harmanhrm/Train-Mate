@@ -6,6 +6,8 @@ App Interface/DEMO
   <img src="https://github.com/user-attachments/assets/33153852-01fe-4a88-bc07-4bed5e930934" width="200" alt="Details Screen" />
   <img src="https://github.com/user-attachments/assets/75667d53-8dad-4ef3-98b7-cfd8e7d91781" width="200" alt="Settings Screen" />
   <img src="https://github.com/user-attachments/assets/7d17d1af-6758-4bf3-87ba-3191399357b9" width="200" />
+<img src="https://github.com/user-attachments/assets/01e7ae43-4c18-4cab-aedc-d523917d2eeb" width="200" />
+
 </div>
 
 
