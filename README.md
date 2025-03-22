@@ -2,11 +2,11 @@
 App Interface/DEMO
 <div align="center">
   <img src="https://github.com/user-attachments/assets/cac2660d-e4c1-4280-a867-20257e8b6e97" width="200" length="400" alt="Main Menu Screen" />
-  <img src="https://github.com/user-attachments/assets/b1455dd0-da52-453b-accc-d40c42eb3cea" width="200" alt="Dashboard Screen" />
-  <img src="https://github.com/user-attachments/assets/33153852-01fe-4a88-bc07-4bed5e930934" width="200" alt="Details Screen" />
-  <img src="https://github.com/user-attachments/assets/75667d53-8dad-4ef3-98b7-cfd8e7d91781" width="200" alt="Settings Screen" />
-  <img src="https://github.com/user-attachments/assets/7d17d1af-6758-4bf3-87ba-3191399357b9" width="200" />
-<img src="https://github.com/user-attachments/assets/01e7ae43-4c18-4cab-aedc-d523917d2eeb" width="200" />
+  <img src="https://github.com/user-attachments/assets/b1455dd0-da52-453b-accc-d40c42eb3cea" width="200" length="400" alt="Dashboard Screen" />
+  <img src="https://github.com/user-attachments/assets/33153852-01fe-4a88-bc07-4bed5e930934" width="200" length="400" alt="Details Screen" />
+  <img src="https://github.com/user-attachments/assets/75667d53-8dad-4ef3-98b7-cfd8e7d91781" width="200" length="400" alt="Settings Screen" />
+  <img src="https://github.com/user-attachments/assets/7d17d1af-6758-4bf3-87ba-3191399357b9" width="200" length="400" />
+<img src="https://github.com/user-attachments/assets/01e7ae43-4c18-4cab-aedc-d523917d2eeb" width="200" length="400" />
 
 </div>
 
