@@ -5,7 +5,9 @@ App Interface/DEMO
   <img src="https://github.com/user-attachments/assets/b1455dd0-da52-453b-accc-d40c42eb3cea" width="200" alt="Dashboard Screen" />
   <img src="https://github.com/user-attachments/assets/33153852-01fe-4a88-bc07-4bed5e930934" width="200" alt="Details Screen" />
   <img src="https://github.com/user-attachments/assets/75667d53-8dad-4ef3-98b7-cfd8e7d91781" width="200" alt="Settings Screen" />
+  <img src="https://github.com/user-attachments/assets/7d17d1af-6758-4bf3-87ba-3191399357b9" width="200" />
 </div>
+
 
 # Workout Tracker App
 Ever forgotten to log your workouts or spent hours trying to find the perfect system to track your progress? 
