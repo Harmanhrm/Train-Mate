@@ -1,6 +1,11 @@
 ### In Progress to Change Database to SQlite over Postgresql to use application offline and enable local data storage
 ### DEMO
-https://mail.google.com/mail/u/0?ui=2&ik=5334a414b6&attid=0.5&permmsgid=msg-a:r-3882393741748393347&th=195bbb1fb1ed5d2c&view=att&disp=safe&realattid=195bbb1d5f5ee49eb3e6&zw
+![Screenshot_20241025-011321_Expo Go](https://github.com/user-attachments/assets/cac2660d-e4c1-4280-a867-20257e8b6e97)
+![Screenshot_20241025-011422_Expo Go](https://github.com/user-attachments/assets/b1455dd0-da52-453b-accc-d40c42eb3cea)
+![Screenshot_20241025-011344_Expo Go](https://github.com/user-attachments/assets/33153852-01fe-4a88-bc07-4bed5e930934)
+![Screenshot_20241025-011410_Expo Go](https://github.com/user-attachments/assets/75667d53-8dad-4ef3-98b7-cfd8e7d91781)
+![Uploading Screenshot_20241025-011452_Expo Go.jpg…]()
+
 # Workout Tracker App
 Ever forgotten to log your workouts or spent hours trying to find the perfect system to track your progress? 
 
